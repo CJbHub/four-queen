@@ -6,7 +6,6 @@ struct graph {
 	int y;
 	int num;//用来记录这是第几个皇后
 };
-bool constraint(graph child,graph father);//约束函数，由隐约束判断是否能够得到可行解
 void output(graph *x);
 void backtrack(int dep,graph *x,graph father);//dep表示当前深度
 int main() {
@@ -35,7 +34,7 @@ void backtrack(int dep, graph *x, graph father)
 			child.y = father.y + 1;             //显约束，不同行
 			child.num = child.y;
 			x[num] = child;                     //将分支上的 数据保存
-			if (constraint(child, father)) {    //判断该分支上的孩子是否满足隐约束
+			if (constraint(child, x,num)) {    //判断该分支上的孩子是否满足隐约束
 				backtrack(dep + 1, x, child);   //如果满足，则进入dep+1层的孩子节点继续搜索
 			}
 		}
@@ -43,13 +42,24 @@ void backtrack(int dep, graph *x, graph father)
 	}
 }
 
-bool constraint(graph child,graph father)
+bool constraint(graph child,graph *x,int num)
 {
-	if (abs(father.num - child.num) != abs(father.x - child.x)&&(child.x!=father.x))//隐约束 不同斜线和显条件不同列
+	int j= 0;//用来记录child节点自底向上和父节点比较的次数
+	for (int i = num - 1; i >= 0; i--) {
+		if (abs(x[i].num - child.num) != abs(x[i].x - child.x) && (child.x != x[i].x))//隐约束 不同斜线和显条件不同列
+		{
+			j++;
+		}
+		else
+			break;//如果比较过程中child和其中一个父节点同列或同斜线则退出
+	}
+	if (j == num)//j=num,说明child和所有父节点都比较过了，且满足约束
 		return true;
 	else
 		return false;
+	
 }
+
 
 void output(graph * x)
 {
